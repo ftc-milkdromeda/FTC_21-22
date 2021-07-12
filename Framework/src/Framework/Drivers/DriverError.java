@@ -34,3 +34,4 @@ public enum DriverError {
     private static int count = 0;
 }
 
+//todo make into interface so client code can add custom error entries.
