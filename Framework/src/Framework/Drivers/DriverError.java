@@ -19,19 +19,17 @@ public enum DriverError {
     }
 
     DriverError() {
-        this.value = DriverErrorCounter.addMember();
+        this.value = Counter.addMember();
     }
 
-    private abstract static class DriverErrorCounter {
+    private abstract static class Counter {
         synchronized static int addMember() {
-            return DriverErrorCounter.count++;
+            return Counter.count++;
         }
         static int count = 0;
     }
 
     private int value;
-
-    private static int count = 0;
 }
 
 //todo make into interface so client code can add custom error entries.
