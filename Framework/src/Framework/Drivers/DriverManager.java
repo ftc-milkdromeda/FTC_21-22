@@ -39,6 +39,8 @@ public class DriverManager {
             }
         }
 
+        this.isDriversInit = true;
+
         return DriverError.NO_ERROR;
     }
     public DriverError swapDriver(Driver driver) {
@@ -65,6 +67,11 @@ public class DriverManager {
             if (driver != null)
                 driver.terminate();
         }
+
+        for(int i = 0; i < this.driverList.length; i++)
+            this.driverList[i] = null;
+
+        this.isDriversInit = false;
 
         return DriverError.NO_ERROR;
     }
