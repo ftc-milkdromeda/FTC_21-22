@@ -31,4 +31,3 @@ public enum DriverError implements Error {
     private String source;
 }
 
-//todo make into interface so client code can add custom error entries.
