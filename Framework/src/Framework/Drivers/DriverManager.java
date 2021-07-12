@@ -1,18 +1,21 @@
 package Framework.Drivers;
 
+import java.lang.reflect.Array;
+import java.util.Arrays;
+
 public class DriverManager {
-    public static DriverManager getInstance() {
+    public static DriverManager getInstance(int driverAmount) {
         if(hasInstance)
             return null;
 
-        return new DriverManager();
+        return new DriverManager(driverAmount);
     }
 
-    private DriverManager() {
-        this.driverList = new Driver[DriverCounter.getCount()];
+    private DriverManager(int driverAmount) {
+        this.driverList = new Driver[driverAmount];
+        this.driverAmount = driverAmount;
 
-        for(Driver driver : this.driverList)
-            driver = null;
+         Arrays.fill(driverList, null);
     }
 
     public DriverError addDriver(Driver driver) {
@@ -68,9 +71,7 @@ public class DriverManager {
                 driver.terminate();
         }
 
-        for(int i = 0; i < this.driverList.length; i++)
-            this.driverList[i] = null;
-
+        Arrays.fill(driverList, null);
         this.isDriversInit = false;
 
         return DriverError.NO_ERROR;
@@ -82,6 +83,7 @@ public class DriverManager {
 
     private boolean isDriversInit;
     private Driver[] driverList;
+    private int driverAmount;
 
     private static boolean hasInstance = false;
 }
