@@ -1,6 +1,4 @@
-package Drivers;
-
-import java.util.ArrayList;
+package Framework.Drivers;
 
 public class DriverManager {
     public static DriverManager getInstance() {

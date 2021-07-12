@@ -1,4 +1,4 @@
-package Drivers;
+package Framework.Drivers;
 
 public abstract class Driver {
     protected Driver(DriverType type) {
@@ -17,7 +17,7 @@ public abstract class Driver {
         return this.isActive;
     }
 
-    DriverError start() {
+    protected DriverError start() {
         if(isActive)
             return DriverError.DRIVER_ALREADY_ACTIVE;
 
@@ -33,7 +33,7 @@ public abstract class Driver {
 
         return DriverError.NO_ERROR;
     }
-    protected abstract void destructor();
+    protected void destructor() {}
 
     protected DriverType driverType;
     private boolean isActive;
