@@ -17,9 +17,13 @@ public abstract class Driver {
         return this.isActive;
     }
 
-    protected DriverError start() {
+    DriverError start() {
         if(isActive)
             return DriverError.DRIVER_ALREADY_ACTIVE;
+
+        DriverError output = this.init();
+        if(output != DriverError.NO_ERROR)
+            return output;
 
         this.isActive = true;
 
@@ -29,11 +33,21 @@ public abstract class Driver {
         if(!isActive)
             return DriverError.DRIVER_NOT_ACTIVE;
 
+        DriverError output = this.destructor();
+        if(output != DriverError.NO_ERROR)
+            return output;
+
         this.isActive = false;
 
         return DriverError.NO_ERROR;
     }
-    protected void destructor() {}
+
+    protected DriverError destructor() {
+        return DriverError.NO_ERROR;
+    }
+    protected DriverError init() {
+        return DriverError.NO_ERROR;
+    }
 
     protected DriverType driverType;
     private boolean isActive;
