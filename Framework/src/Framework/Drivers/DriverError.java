@@ -1,7 +1,8 @@
 package Framework.Drivers;
 
-public enum DriverError {
-    //enum value declaration
+import Framework.Error;
+
+public enum DriverError implements Error {
     DRIVERS_NOT_INIT,
     DRIVERS_ALREADY_INIT,
 
@@ -13,23 +14,21 @@ public enum DriverError {
 
     NO_ERROR;
 
-    //enum function declaration
-    public int getValue() {
-        return this.value;
-    }
-
     DriverError() {
-        this.value = Counter.addMember();
+        this.source = "FRAMEWORK_DRIVERS";
     }
 
-    private abstract static class Counter {
-        synchronized static int addMember() {
-            return Counter.count++;
-        }
-        static int count = 0;
+    @Override
+    public String getSource() {
+        return this.source;
     }
 
-    private int value;
+    @Override
+    public String toString() {
+        return this.source + ": " + super.toString();
+    }
+
+    private String source;
 }
 
 //todo make into interface so client code can add custom error entries.

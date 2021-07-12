@@ -1,6 +1,7 @@
 package Framework.Drivers;
 
-import java.lang.reflect.Array;
+import Framework.Error;
+
 import java.util.Arrays;
 
 public class DriverManager {
@@ -18,7 +19,7 @@ public class DriverManager {
          Arrays.fill(driverList, null);
     }
 
-    public DriverError addDriver(Driver driver) {
+    public Error addDriver(Driver driver) {
         if(driver.isActive())
             return DriverError.DRIVERS_ALREADY_INIT;
 
@@ -32,7 +33,7 @@ public class DriverManager {
 
         return DriverError.NO_ERROR;
     }
-    public DriverError initDrivers() {
+    public Error initDrivers() {
         if(this.isDriversInit)
             return DriverError.DRIVERS_ALREADY_INIT;
 
@@ -46,7 +47,7 @@ public class DriverManager {
 
         return DriverError.NO_ERROR;
     }
-    public DriverError swapDriver(Driver driver) {
+    public Error swapDriver(Driver driver) {
         if(driver.isActive())
             return DriverError.DRIVER_ALREADY_ACTIVE;
 
@@ -62,7 +63,7 @@ public class DriverManager {
 
         return DriverError.NO_ERROR;
     }
-    public DriverError terminateDriver() {
+    public Error terminateDriver() {
         if (!this.isDriversInit)
             return DriverError.DRIVERS_NOT_INIT;
 

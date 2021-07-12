@@ -1,5 +1,7 @@
 package Framework.Drivers;
 
+import Framework.Error;
+
 public abstract class Driver {
     protected Driver(DriverType type) {
         this.isActive = false;
@@ -17,11 +19,11 @@ public abstract class Driver {
         return this.isActive;
     }
 
-    DriverError start() {
+    Error start() {
         if(isActive)
             return DriverError.DRIVER_ALREADY_ACTIVE;
 
-        DriverError output = this.init();
+        Error output = this.init();
         if(output != DriverError.NO_ERROR)
             return output;
 
@@ -29,11 +31,11 @@ public abstract class Driver {
 
         return DriverError.NO_ERROR;
     }
-    DriverError terminate() {
+    Error terminate() {
         if(!isActive)
             return DriverError.DRIVER_NOT_ACTIVE;
 
-        DriverError output = this.destructor();
+        Error output = this.destructor();
         if(output != DriverError.NO_ERROR)
             return output;
 
@@ -42,10 +44,10 @@ public abstract class Driver {
         return DriverError.NO_ERROR;
     }
 
-    protected DriverError destructor() {
+    protected Error destructor() {
         return DriverError.NO_ERROR;
     }
-    protected DriverError init() {
+    protected Error init() {
         return DriverError.NO_ERROR;
     }
 
