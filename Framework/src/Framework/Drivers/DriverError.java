@@ -12,6 +12,10 @@ public enum DriverError implements Error {
     DRIVER_ALREADY_ACTIVE,
     DRIVER_NOT_ACTIVE;
 
+    DRIVER_ALREADY_BOUND,
+    DRIVER_NOT_BOUND_TO_TASK,
+
+    DRIVER_IS_INTERRUPTED;
 
     DriverError() {
         this.source = "FRAMEWORK_DRIVERS";
