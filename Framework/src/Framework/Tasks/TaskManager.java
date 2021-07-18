@@ -38,13 +38,8 @@ public final class TaskManager {
         TaskManager.manager = manager;
     }
 
-    public static Error startTask(int taskID) {
-        int index = TaskManager.findTask(taskID);
-
-        if(index == -1)
-            return TaskError.TASK_ID_NOT_FOUND;
-
-        return TaskManager.taskList.get(index).startTask();
+    public static Error startTask(Task task) {
+        return task.startTask();
     }
     public static Error stopTask(int taskID) {
         int index = TaskManager.findTask(taskID);
@@ -71,28 +66,37 @@ public final class TaskManager {
         return TaskManager.taskList.size();
     }
 
-    static Error driverRequest(Task callingTask, DriverList list, Driver[] boundDrivers, Driver[] unboundDrivers) {
+    static Error driverRequest(Task callingTask, DriverList list, RequestedDrivers output) {
         if(callingTask.taskID == -1)
             return TaskError.TASK_NOT_BOUND;
 
-        if(list.boundDrivers != null) {
-            boundDrivers = new Driver[list.boundDrivers.length];
-            for (int i = 0; i < boundDrivers.length; i++) {
-                boundDrivers[i] = TaskManager.manager.getDriver(list.boundDrivers[i]);
+        if(TaskManager.manager == null)
+            return TaskError.NO_DRIVER_MANAGER_BOUND;
 
-                if(boundDrivers[i].bindToTask(callingTask) == DriverError.DRIVER_ALREADY_BOUND)
+        if(list.boundDrivers != null) {
+            output.boundDrivers = new Driver[list.boundDrivers.length];
+            for (int i = 0; i < output.boundDrivers.length; i++) {
+                output.boundDrivers[i] = TaskManager.manager.getDriver(list.boundDrivers[i]);
+
+                if(output.boundDrivers[i] == null)
+                    return TaskError.NO_DRIVER_INIT;
+
+                if(output.boundDrivers[i].bindToTask(callingTask) == DriverError.DRIVER_ALREADY_BOUND)
                     return TaskError.DRIVER_ALREADY_BOUND;
             }
         }
-        else boundDrivers = null;
+        else output.boundDrivers = null;
 
         if(list.unboundDrivers != null) {
-            unboundDrivers = new Driver[list.unboundDrivers.length];
-            for(int i = 0; i < unboundDrivers.length; i++) {
-                unboundDrivers[i] = TaskManager.manager.getDriver(list.unboundDrivers[i]);
+            output.unboundDrivers = new Driver[list.unboundDrivers.length];
+            for(int i = 0; i < output.unboundDrivers.length; i++) {
+                output.unboundDrivers[i] = TaskManager.manager.getDriver(list.unboundDrivers[i]);
+
+                if(output.unboundDrivers[i] == null)
+                    return TaskError.NO_DRIVER_INIT;
             }
         }
-        else unboundDrivers = null;
+        else output.unboundDrivers = null;
 
         return TaskError.NO_ERROR;
     }
@@ -142,6 +146,17 @@ public final class TaskManager {
 
         private DriverType[] boundDrivers;
         private DriverType[] unboundDrivers;
+    }
+    public static class RequestedDrivers {
+        private Driver[] boundDrivers;
+        private Driver[] unboundDrivers;
+
+        public Driver[] getBoundDrivers() {
+            return this.boundDrivers;
+        }
+        public Driver[] getUnboundDrivers() {
+            return this.unboundDrivers;
+        }
     }
 
     private TaskManager() {}

@@ -5,7 +5,7 @@ import Framework.Error;
 import java.util.ArrayList;
 
 public class Clock extends Task{
-    public Clock(int refreshRate) {
+    public Clock(double refreshRate) {
         this.refreshRate = refreshRate;
         this.taskList = new ArrayList<Task>();
         this.clockCycle = 0;
@@ -38,13 +38,23 @@ public class Clock extends Task{
 
     @Override
     public Error loop() {
-        if(this.refreshRate != -1 && this.refreshRate <= 1000) {
-            if(this.isClockReady())
-                this.clockCycle++;
+        if(this.refreshRate == -1 || this.refreshRate >= 1000) {
+            if(!this.isClockReady())
+                return TaskError.NO_ERROR;
         }
         else {
-            while(System.currentTimeMillis() - this.lastRefresh < 1000 / (refreshRate) && !super.isInterrupted());
+            while(System.currentTimeMillis() - this.lastRefresh < 1000 / this.refreshRate && !super.isInterrupted());
+
+            if(!this.isClockReady())
+                return TaskError.NO_ERROR;
+        }
+
+        synchronized (this) {
+            for(Task task : this.taskList)
+                task.taskReady = false;
+
             this.clockCycle++;
+            this.lastRefresh = System.currentTimeMillis();
         }
 
         return TaskError.NO_ERROR;
@@ -104,7 +114,7 @@ public class Clock extends Task{
         return true;
     }
     protected final synchronized boolean nextCycleReady(int cycle) {
-        return (cycle < this.clockCycle) ? true : false;
+        return !(cycle < this.clockCycle);
     }
     protected final synchronized Error taskReady(Task callingTask) {
         if(callingTask.taskClockID == -1)
@@ -123,7 +133,7 @@ public class Clock extends Task{
     private int currentID;
 
     private int clockCycle;
-    private int refreshRate;
+    private double refreshRate;
     private long lastRefresh;
 }
 
