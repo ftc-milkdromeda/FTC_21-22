@@ -1,56 +1,38 @@
 package Main;
 
 import Framework.Drivers.DriverManager;
+import Framework.Tasks.Clock;
+import Framework.Tasks.TaskManager;
 import RobotCode.Drivers.DriverDirectory;
 import RobotCode.Drivers.TestDriver1;
 import RobotCode.Drivers.TestDriver1_1;
 import RobotCode.Drivers.TestDriver2;
+import RobotCode.Tasks.TestTask1;
+import RobotCode.Tasks.TestTask2;
 
 public class Entry {
     public static void main(String args[]) {
-        DriverManager drivers = DriverManager.getInstance(DriverDirectory.NULL_TYPE.getID());
+        DriverManager drivers = new DriverManager(DriverDirectory.NULL_TYPE.getID());
 
         TestDriver1 driver1 = new TestDriver1();
         TestDriver2 driver2 = new TestDriver2();
-        TestDriver1_1 driver3 = new TestDriver1_1();
 
-        System.out.println(drivers.addDriver(driver1));
-        System.out.println(drivers.addDriver(driver2));
-        System.out.println(drivers.addDriver(driver3));
+        drivers.addDriver(driver1);
+        drivers.addDriver(driver2);
+        drivers.initDrivers();
 
-        System.out.println("_________________________________________\n");
+        TaskManager.bindDriverManager(drivers);
 
-        driver1.doSomething();
-        driver2.doSomething();
-        driver3.doSomething();
+        Clock clock = new Clock(1);
 
-        System.out.println("_________________________________________\n");
+        TestTask1 task1 = new TestTask1(clock);
+        TestTask2 task2 = new TestTask2(clock);
 
-        System.out.println(drivers.initDrivers());
+        System.out.println(TaskManager.startTask(clock));
+        System.out.println(TaskManager.startTask(task1));
+        System.out.println(TaskManager.startTask(task2));
 
-        driver1.doSomething();
-        driver2.doSomething();
-        driver3.doSomething();
-
-        System.out.println("_________________________________________\n");
-
-        System.out.println(drivers.swapDriver(driver3));
-
-        driver1.doSomething();
-        driver2.doSomething();
-        driver3.doSomething();
-
-        System.out.println("_________________________________________\n");
-
-        System.out.println(drivers.terminateDriver());
-
-        driver1.doSomething();
-        driver2.doSomething();
-        driver3.doSomething();
-
-        System.out.println(drivers.addDriver(driver1));
-        System.out.println(drivers.addDriver(driver2));
-        System.out.println(drivers.addDriver(driver3));
+        while(true);
     }
 }
 
