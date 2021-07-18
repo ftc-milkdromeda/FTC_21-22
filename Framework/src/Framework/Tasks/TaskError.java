@@ -11,6 +11,10 @@ public enum TaskError implements Error {
 
     TASK_ID_NOT_FOUND,
 
+    NO_DRIVER_MANAGER_BOUND,
+
+    NO_DRIVER_INIT,
+
     NO_ERROR;
 
     @Override

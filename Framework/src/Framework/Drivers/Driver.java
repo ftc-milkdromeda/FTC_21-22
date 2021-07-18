@@ -70,15 +70,16 @@ public abstract class Driver {
         return GeneralError.NO_ERROR;
     }
 
+
     protected Error validateCall(Task task) {
-        if(this.interruptTask != task && this.attachedTask == task)
-            return DriverError.DRIVER_IS_INTERRUPTED;
-
-        if(this.attachedTask == null || task != this.attachedTask || task != this.interruptTask)
-            return DriverError.DRIVER_NOT_BOUND_TO_TASK;
-
         if(!this.isActive)
             return DriverError.DRIVER_NOT_ACTIVE;
+
+        if(this.interruptTask != null && this.attachedTask == task)
+            return DriverError.DRIVER_IS_INTERRUPTED;
+
+        if(task != this.attachedTask && task != this.interruptTask)
+            return DriverError.DRIVER_NOT_BOUND_TO_TASK;
 
         return DriverError.NO_ERROR;
     }

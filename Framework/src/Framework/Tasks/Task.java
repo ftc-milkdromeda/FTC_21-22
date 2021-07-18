@@ -25,19 +25,23 @@ public abstract class Task extends Thread{
     public final int getTaskID() {
         return taskID;
     }
+    public final int getTaskClockID() {
+        return this.taskClockID;
+    }
 
     @Override
     public final void run() {
         exitState = TaskError.NO_ERROR;
-        int currentCycle = this.clock.getCurrentCycle();
 
         while(!super.isInterrupted() && this.exitState == TaskError.NO_ERROR) {
+            int currentCycle = this.clock == null ? 0 : this.clock.getCurrentCycle();
+
             exitState = loop();
 
             if(this.taskClockID != -1 && this.exitState == TaskError.NO_ERROR) {
                 exitState = clock.taskReady(this);
 
-                while(this.clock.nextCycleReady(currentCycle) && TaskError.NO_ERROR == this.exitState);
+                while(this.clock.nextCycleReady(currentCycle) && TaskError.NO_ERROR == this.exitState && !super.isInterrupted());
             }
         }
     }
@@ -52,22 +56,33 @@ public abstract class Task extends Thread{
     public abstract Error loop();
 
     final Error startTask() {
-        if(TaskManager.driverRequest(this, driverList, this.boundDrivers, this.unboundDrivers) == TaskError.DRIVER_ALREADY_BOUND)
-            return TaskError.DRIVER_ALREADY_BOUND;
-
         Error error = TaskManager.addTask(this);
-        if(error != TaskError.NO_ERROR)
+        if (error != TaskError.NO_ERROR)
             return error;
 
-        if(this.clock != null) {
+        if (this.clock != null) {
             error = this.clock.addTask(this);
-            if(error != TaskError.NO_ERROR)
+            if (error != TaskError.NO_ERROR) {
+                TaskManager.removeTask(this.taskID);
                 return error;
+            }
         }
 
+        TaskManager.RequestedDrivers output = new TaskManager.RequestedDrivers();
+        error = TaskManager.driverRequest(this, driverList, output);
+        if (error != TaskError.NO_ERROR) {
+            TaskManager.removeTask(this.taskID);
+            return error;
+        }
+
+        this.boundDrivers = output.getBoundDrivers();
+        this.unboundDrivers = output.getUnboundDrivers();
+
         error = this.init();
-        if(error != TaskError.NO_ERROR)
-            return  error;
+        if(error != TaskError.NO_ERROR) {
+            TaskManager.removeTask(this.taskID);
+            return error;
+        }
 
         super.start();
 
