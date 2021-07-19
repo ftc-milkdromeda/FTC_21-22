@@ -10,9 +10,8 @@ public enum DriverError implements Error {
     DRIVER_DOES_NOT_EXIST,
 
     DRIVER_ALREADY_ACTIVE,
-    DRIVER_NOT_ACTIVE,
+    DRIVER_NOT_ACTIVE;
 
-    NO_ERROR;
 
     DriverError() {
         this.source = "FRAMEWORK_DRIVERS";
