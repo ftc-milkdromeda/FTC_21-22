@@ -5,6 +5,7 @@ import Framework.Drivers.Driver;
 import Framework.Drivers.DriverError;
 import Framework.Drivers.DriverManager;
 import Framework.Drivers.DriverType;
+import Framework.GeneralError;
 
 import java.util.ArrayList;
 
@@ -50,12 +51,12 @@ public final class TaskManager {
         return TaskManager.taskList.get(index).endTask();
     }
     public static Error stopTask() {
-        Error error = TaskError.NO_ERROR;
+        Error error = GeneralError.NO_ERROR;
 
         for(Task task : TaskManager.taskList) {
             error = task.endTask();
 
-            if(error != TaskError.NO_ERROR)
+            if(error != GeneralError.NO_ERROR)
                 break;
         }
 
@@ -98,7 +99,7 @@ public final class TaskManager {
         }
         else output.unboundDrivers = null;
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     static Error unbindDrivers(Task callingTask, DriverList drivers) {
         for(int i = 0; i < drivers.boundDrivers.length; i++) {
@@ -106,7 +107,7 @@ public final class TaskManager {
                 return TaskError.DRIVER_NOT_BOUND_TO_TASK;
         }
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     static Error addTask(Task task) {
@@ -117,7 +118,7 @@ public final class TaskManager {
 
         TaskManager.taskList.add(task);
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     static Error removeTask(int taskID) {
         if(taskID == -1)
@@ -130,7 +131,7 @@ public final class TaskManager {
 
         TaskManager.taskList.remove(index);
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     private static DriverManager manager = null;

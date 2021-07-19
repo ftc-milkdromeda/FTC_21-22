@@ -28,14 +28,14 @@ public abstract class Driver {
             return DriverError.DRIVER_ALREADY_BOUND;
 
         this.attachedTask = task;
-        return DriverError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     public Error unbindDriver(Task task) {
         if(this.attachedTask != task)
             return DriverError.DRIVER_NOT_BOUND_TO_TASK;
         this.attachedTask = null;
 
-        return DriverError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     Error start() {
@@ -81,7 +81,7 @@ public abstract class Driver {
         if(task != this.attachedTask && task != this.interruptTask)
             return DriverError.DRIVER_NOT_BOUND_TO_TASK;
 
-        return DriverError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     public abstract class InterruptHandler {

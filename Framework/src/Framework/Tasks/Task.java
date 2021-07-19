@@ -1,8 +1,8 @@
 package Framework.Tasks;
 
 import Framework.Drivers.Driver;
-import Framework.Drivers.DriverError;
 import Framework.Error;
+import Framework.GeneralError;
 
 public abstract class Task extends Thread{
     protected Task(TaskManager.DriverList driverList, Clock clock) {
@@ -31,17 +31,17 @@ public abstract class Task extends Thread{
 
     @Override
     public final void run() {
-        exitState = TaskError.NO_ERROR;
+        exitState = GeneralError.NO_ERROR;
 
-        while(!super.isInterrupted() && this.exitState == TaskError.NO_ERROR) {
+        while(!super.isInterrupted() && this.exitState == GeneralError.NO_ERROR) {
             int currentCycle = this.clock == null ? 0 : this.clock.getCurrentCycle();
 
             exitState = loop();
 
-            if(this.taskClockID != -1 && this.exitState == TaskError.NO_ERROR) {
+            if(this.taskClockID != -1 && this.exitState == GeneralError.NO_ERROR) {
                 exitState = clock.taskReady(this);
 
-                while(this.clock.nextCycleReady(currentCycle) && TaskError.NO_ERROR == this.exitState && !super.isInterrupted());
+                while(this.clock.nextCycleReady(currentCycle) && GeneralError.NO_ERROR == this.exitState && !super.isInterrupted());
             }
         }
     }
@@ -57,12 +57,12 @@ public abstract class Task extends Thread{
 
     final Error startTask() {
         Error error = TaskManager.addTask(this);
-        if (error != TaskError.NO_ERROR)
+        if (error != GeneralError.NO_ERROR)
             return error;
 
         if (this.clock != null) {
             error = this.clock.addTask(this);
-            if (error != TaskError.NO_ERROR) {
+            if (error != GeneralError.NO_ERROR) {
                 TaskManager.removeTask(this.taskID);
                 return error;
             }
@@ -70,7 +70,7 @@ public abstract class Task extends Thread{
 
         TaskManager.RequestedDrivers output = new TaskManager.RequestedDrivers();
         error = TaskManager.driverRequest(this, driverList, output);
-        if (error != TaskError.NO_ERROR) {
+        if (error != GeneralError.NO_ERROR) {
             TaskManager.removeTask(this.taskID);
             return error;
         }
@@ -79,23 +79,23 @@ public abstract class Task extends Thread{
         this.unboundDrivers = output.getUnboundDrivers();
 
         error = this.init();
-        if(error != TaskError.NO_ERROR) {
+        if(error != GeneralError.NO_ERROR) {
             TaskManager.removeTask(this.taskID);
             return error;
         }
 
         super.start();
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     final Error endTask() {
         Error error = this.destructor();
-        if(error != TaskError.NO_ERROR)
+        if(error != GeneralError.NO_ERROR)
             return error;
 
         if(this.clock != null) {
             error = this.clock.removeTask(this.taskClockID);
-            if(error != TaskError.NO_ERROR)
+            if(error != GeneralError.NO_ERROR)
                 return error;
         }
 
@@ -106,10 +106,10 @@ public abstract class Task extends Thread{
     }
 
     protected Error init() {
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     protected Error destructor() {
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     private TaskManager.DriverList driverList;

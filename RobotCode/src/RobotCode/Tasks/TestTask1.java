@@ -1,15 +1,14 @@
 package RobotCode.Tasks;
 
 import Framework.Drivers.Driver;
-import Framework.Drivers.DriverError;
 import Framework.Drivers.DriverType;
 import Framework.Error;
 import Framework.Tasks.Clock;
 import Framework.Tasks.Task;
-import Framework.Tasks.TaskError;
 import Framework.Tasks.TaskManager;
 import RobotCode.Drivers.DriverDirectory;
 import RobotCode.Drivers.TestDriver1;
+import Framework.GeneralError;
 
 public class TestTask1 extends Task {
     public TestTask1(Clock clock) {
@@ -19,7 +18,7 @@ public class TestTask1 extends Task {
     @Override
     protected Error init() {
         this.driver1 = (TestDriver1) super.unboundDrivers[0];
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     @Override
@@ -28,13 +27,13 @@ public class TestTask1 extends Task {
             @Override
             protected Error programLogic() {
                 driver1.doSomething(super.task);
-                return DriverError.NO_ERROR;
+                return GeneralError.NO_ERROR;
             }
         };
 
         handler.run();
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     private static TaskManager.DriverList driverList = new TaskManager.DriverList(

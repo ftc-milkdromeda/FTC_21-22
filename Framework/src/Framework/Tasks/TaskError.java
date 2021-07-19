@@ -13,9 +13,8 @@ public enum TaskError implements Error {
 
     NO_DRIVER_MANAGER_BOUND,
 
-    NO_DRIVER_INIT,
+    NO_DRIVER_INIT;
 
-    NO_ERROR;
 
     @Override
     public String toString() {

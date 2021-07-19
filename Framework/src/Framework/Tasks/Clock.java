@@ -1,6 +1,7 @@
 package Framework.Tasks;
 
 import Framework.Error;
+import Framework.GeneralError;
 
 import java.util.ArrayList;
 
@@ -40,13 +41,13 @@ public class Clock extends Task{
     public Error loop() {
         if(this.refreshRate == -1 || this.refreshRate >= 1000) {
             if(!this.isClockReady())
-                return TaskError.NO_ERROR;
+                return GeneralError.NO_ERROR;
         }
         else {
             while(System.currentTimeMillis() - this.lastRefresh < 1000 / this.refreshRate && !super.isInterrupted());
 
             if(!this.isClockReady())
-                return TaskError.NO_ERROR;
+                return GeneralError.NO_ERROR;
         }
 
         synchronized (this) {
@@ -57,14 +58,14 @@ public class Clock extends Task{
             this.lastRefresh = System.currentTimeMillis();
         }
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     @Override
     protected synchronized Error init() {
         this.lastRefresh = System.currentTimeMillis();
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     protected final Error addTask(Task task) {
@@ -74,7 +75,7 @@ public class Clock extends Task{
         task.taskClockID = currentID++;
         this.taskList.add(task);
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     protected final Error removeTask(int tasClockID) {
         int index = this.findTask(tasClockID);
@@ -83,26 +84,26 @@ public class Clock extends Task{
 
         this.taskList.remove(index);
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     public final Error pauseTask(int taskClockID) {
          int index = this.findTask(taskClockID);
          if(index == -1)
-             return TaskError.NO_ERROR;
+             return GeneralError.NO_ERROR;
 
          this.taskList.get(index).taskIsPaused = true;
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     public final Error resumeTask(int taskClockID) {
         int index = this.findTask(taskClockID);
         if(index == -1)
-            return TaskError.NO_ERROR;
+            return GeneralError.NO_ERROR;
 
         this.taskList.get(index).taskIsPaused = false;
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     private synchronized boolean isClockReady() {
@@ -122,7 +123,7 @@ public class Clock extends Task{
 
         callingTask.taskReady = true;
 
-        return TaskError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     public int getCurrentCycle() {
