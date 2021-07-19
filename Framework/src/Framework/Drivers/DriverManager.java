@@ -1,6 +1,7 @@
 package Framework.Drivers;
 
 import Framework.Error;
+import Framework.GeneralError;
 
 import java.util.Arrays;
 
@@ -31,7 +32,7 @@ public class DriverManager {
 
         this.driverList[driver.getType().getID()] = driver;
 
-        return DriverError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     public Error initDrivers() {
         if(this.isDriversInit)
@@ -45,7 +46,7 @@ public class DriverManager {
 
         this.isDriversInit = true;
 
-        return DriverError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     public Error swapDriver(Driver driver) {
         if(driver.isActive())
@@ -61,7 +62,7 @@ public class DriverManager {
         driverList[driver.getType().getID()] = driver;
         driver.start();
 
-        return DriverError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
     public Error terminateDriver() {
         if (!this.isDriversInit)
@@ -75,7 +76,7 @@ public class DriverManager {
         Arrays.fill(driverList, null);
         this.isDriversInit = false;
 
-        return DriverError.NO_ERROR;
+        return GeneralError.NO_ERROR;
     }
 
     public Driver getDriver(DriverType driver) {
