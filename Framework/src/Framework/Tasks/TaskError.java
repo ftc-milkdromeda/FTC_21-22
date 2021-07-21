@@ -13,7 +13,9 @@ public enum TaskError implements Error {
 
     NO_DRIVER_MANAGER_BOUND,
 
-    NO_DRIVER_INIT;
+    NO_DRIVER_INIT,
+
+    NO_CLOCK_DEFINED;
 
 
     @Override

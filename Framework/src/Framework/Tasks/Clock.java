@@ -5,7 +5,7 @@ import Framework.GeneralError;
 
 import java.util.ArrayList;
 
-public class Clock extends Task{
+public class Clock extends TaskLoop{
     public Clock(double refreshRate) {
         this.refreshRate = refreshRate;
         this.taskList = new ArrayList<Task>();

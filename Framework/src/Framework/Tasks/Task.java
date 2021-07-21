@@ -14,6 +14,9 @@ public abstract class Task extends Thread{
         this.taskReady = false;
         this.exitState = null;
     }
+    protected Task(Clock clock) {
+        this(null, clock);
+    }
     protected Task() {
         this(new TaskManager.DriverList(null, null), null);
     }
@@ -30,30 +33,18 @@ public abstract class Task extends Thread{
     }
 
     @Override
-    public final void run() {
-        exitState = GeneralError.NO_ERROR;
-
-        while(!super.isInterrupted() && this.exitState == GeneralError.NO_ERROR) {
-            int currentCycle = this.clock == null ? 0 : this.clock.getCurrentCycle();
-
-            exitState = loop();
-
-            if(this.taskClockID != -1 && this.exitState == GeneralError.NO_ERROR) {
-                exitState = clock.taskReady(this);
-
-                while(this.clock.nextCycleReady(currentCycle) && GeneralError.NO_ERROR == this.exitState && !super.isInterrupted());
-            }
-        }
-    }
+    public abstract void run();
     @Override
     public final synchronized void start() {
         super.start();
     }
+
     public final Error getExitState() {
         return this.exitState;
     }
-
-    public abstract Error loop();
+    protected void setExitState(Error exitState) {
+        this.exitState = exitState;
+    }
 
     final Error startTask() {
         Error error = TaskManager.addTask(this);
@@ -78,11 +69,15 @@ public abstract class Task extends Thread{
         this.boundDrivers = output.getBoundDrivers();
         this.unboundDrivers = output.getUnboundDrivers();
 
+        this.currentCycle = this.clock == null ? -1 : this.clock.getCurrentCycle();
+
         error = this.init();
         if(error != GeneralError.NO_ERROR) {
             TaskManager.removeTask(this.taskID);
             return error;
         }
+
+        this.exitState = GeneralError.NO_ERROR;
 
         super.start();
 
@@ -112,6 +107,28 @@ public abstract class Task extends Thread{
         return GeneralError.NO_ERROR;
     }
 
+    protected int getClockCycle() {
+        return this.currentCycle;
+    }
+    protected Error waitForClockCycle() throws InterruptedException {
+        if(this.taskClockID == -1)
+            return TaskError.NO_CLOCK_DEFINED;
+
+        this.exitState = this.clock.taskReady(this);
+
+        if(this.exitState != GeneralError.NO_ERROR)
+            return this.exitState;
+
+        while(this.clock.nextCycleReady(this.currentCycle)) {
+            if(super.isInterrupted())
+                throw new InterruptedException();
+        }
+
+        this.currentCycle = this.clock.getCurrentCycle();
+
+        return this.exitState;
+    }
+
     private TaskManager.DriverList driverList;
     private Clock clock;
 
@@ -120,11 +137,10 @@ public abstract class Task extends Thread{
     int taskID;
 
     int taskClockID;
+    int currentCycle;
     boolean taskReady;
     boolean taskIsPaused;
 
     protected Driver[] boundDrivers;
     protected Driver[] unboundDrivers;
 }
-
-//todo add linear tasks (FUTURE CHANGE)
