@@ -4,15 +4,12 @@ import Framework.Drivers.Driver;
 import Framework.Drivers.DriverError;
 import Framework.Drivers.DriverType;
 import Framework.Error;
-import Framework.Tasks.Clock;
-import Framework.Tasks.Task;
-import Framework.Tasks.TaskError;
-import Framework.Tasks.TaskManager;
+import Framework.Tasks.*;
 import RobotCode.Drivers.DriverDirectory;
 import RobotCode.Drivers.TestDriver2;
 import Framework.GeneralError;
 
-public class TestTask2 extends Task {
+public class TestTask2 extends TaskLoop {
     public TestTask2(Clock clock) {
         super(TestTask2.driverList, clock);
     }
