@@ -12,5 +12,5 @@ public enum GeneralError implements Error{
         return this.source + ": " + super.toString();
     }
 
-    private String source;
+    private String source = "General";
 }

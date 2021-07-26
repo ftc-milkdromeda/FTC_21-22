@@ -5,15 +5,8 @@ import Framework.GeneralError;
 
 import java.util.Arrays;
 
-public class DriverManager {
-    public static DriverManager getInstance(int driverAmount) {
-        if(hasInstance)
-            return null;
-
-        return new DriverManager(driverAmount);
-    }
-
-    private DriverManager(int driverAmount) {
+public final class DriverManager {
+    public DriverManager(int driverAmount) {
         this.driverList = new Driver[driverAmount];
         this.driverAmount = driverAmount;
 
@@ -86,6 +79,4 @@ public class DriverManager {
     private boolean isDriversInit;
     private Driver[] driverList;
     private int driverAmount;
-
-    private static boolean hasInstance = false;
 }
