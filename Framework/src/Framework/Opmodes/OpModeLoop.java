@@ -22,3 +22,5 @@ public abstract class OpModeLoop extends OpMode{
 
     public abstract Error loop();
 }
+
+//todo add opmode refresh monitor (FUTURE CHANGE)
