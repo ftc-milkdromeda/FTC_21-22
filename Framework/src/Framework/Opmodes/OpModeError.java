@@ -12,7 +12,7 @@ public enum OpModeError implements Error {
 
     @Override
     public String toString() {
-        return super.toString() + ": " + this.source;
+        return this.source + ": " + super.toString();
     }
 
     @Override
