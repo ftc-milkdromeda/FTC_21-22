@@ -2,17 +2,20 @@ package Framework.Data;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+
 public class DataObjects {
     ArrayList<Object> data;
     ArrayList<String> messages;
     String time;
-    DataObjects(String m, Object d)
+    String source;
+    public DataObjects(String m, Object d, String s)
     {
         data = new ArrayList<Object>();
         messages = new ArrayList<String>();
         data.add(d);
         messages.add(m);
         updateTime();
+        source = s;
     }
     public void addData(String m, Object d)
     {
@@ -30,6 +33,7 @@ public class DataObjects {
     {
         return messages.get(index) + ": " + data.get(index);
     }
+
     public void updateTime()
     {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
@@ -39,7 +43,7 @@ public class DataObjects {
     public String toString()
     {
         String str = "";
-        str += "Data at " + time + ":\n";
+        str += "Data from " + source + " at " + time + ":\n";
         for(int i = 0; i < data.size(); i++)
         {
             str += "\t";

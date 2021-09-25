@@ -1,35 +1,50 @@
 package Framework.Data;
-import java.io.*;
-public class LogMaker
+
+import Framework.Error;
+import Framework.GeneralError;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class FileLogger
 {
     File logFile;
-    LogMaker(String filename)
+    private Error status;
+
+    public FileLogger(String filename)
     {
         try {
             logFile = new File(filename + ".txt");
             if (logFile.createNewFile()) {
-                System.out.println("File created: " + logFile.getName());
+                status = GeneralError.NO_ERROR;
             } else {
-                System.out.println("File already exists.");
+                status = DataError.FILE_ALREADY_EXISTS_ERROR;
             }
         } catch (IOException e) {
+
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
     }
-    void AddEntry(DataObjects d)
+    public Error getStatus()
+    {
+        return status;
+    }
+    public Error AddEntry(DataObjects d)
     {
         try {
             FileWriter logWriter = new FileWriter(logFile.getAbsoluteFile(), true);
             logWriter.write(d.toString());
             logWriter.flush();
             logWriter.close();
-            System.out.println("Successfully wrote to the file.");
+            return GeneralError.NO_ERROR;
         }
         catch(IOException e)
         {
-            System.out.println("An error occurred");
             e.printStackTrace();
+            return DataError.FILE_WRITING_ERROR;
+
         }
 
     }

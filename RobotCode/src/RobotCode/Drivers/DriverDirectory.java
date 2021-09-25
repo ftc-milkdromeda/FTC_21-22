@@ -5,6 +5,7 @@ import Framework.Drivers.DriverType;
 public enum DriverDirectory implements DriverType {
     TEST_DRIVER_1,
     TEST_DRIVER_2,
+    DATA_DRIVER,
     NULL_TYPE;
 
     public int getID() {
