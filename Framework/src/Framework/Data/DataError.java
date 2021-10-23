@@ -4,6 +4,7 @@ public enum DataError implements Error {
     FILE_ALREADY_EXISTS_ERROR,
     FILE_WRITING_ERROR,
     CONSOLE_IS_NULL_ERROR,
+    FILE_NOT_CREATED_ERROR
     ;
 
     private String source = "FRAMEWORK_DATA";
