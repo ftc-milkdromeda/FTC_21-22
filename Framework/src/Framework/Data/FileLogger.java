@@ -9,9 +9,14 @@ import java.io.IOException;
 
 public class FileLogger
 {
+    //instance variables
     File logFile;
     private Error status;
 
+    /**
+     * constructors
+     * @param filename the name of the file logs will be put in.
+     */
     public FileLogger(String filename)
     {
         try {
@@ -27,10 +32,12 @@ public class FileLogger
             e.printStackTrace();
         }
     }
-    public Error getStatus()
-    {
-        return status;
-    }
+
+    /**
+     * write a dataObject to a file.
+     * @param d the data to be written.
+     * @return any Errors that crop up.
+     */
     public Error AddEntry(DataObjects d)
     {
         try {
@@ -47,6 +54,15 @@ public class FileLogger
 
         }
 
+    }
+
+    /**
+     * getter for status.
+     * @return
+     */
+    public Error getStatus()
+    {
+        return status;
     }
 
 }
