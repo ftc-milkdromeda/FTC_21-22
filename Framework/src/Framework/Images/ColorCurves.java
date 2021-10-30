@@ -169,7 +169,7 @@ public class ColorCurves {
         return rangeFormula;
     }
 
-    /*
+    /**
      * these getters take a String input, and return the correct data for the color given by the string.
      *They take one of "red", "green", or "blue". Other values return the default data.
      */
