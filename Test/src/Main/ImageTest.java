@@ -15,22 +15,29 @@ public class ImageTest {
      */
     public static void main(String[] args) throws FileNotFoundException
     {
-        FileInputStream imgBitmap = new FileInputStream("/Users/llai/IdeaProjects/FTC_21-22/Test/src/Main/bmp_24.bmp");
+        FileInputStream imgBitmap = new FileInputStream("/Users/llai/IdeaProjects/FTC_21-22/Test/src/Main/tryfile.bmp");
         Image testImage = new Image(imgBitmap);
 
-        //cropping test
-        testImage.cropImage(0,1,0,69);
-        testImage.fileImage("test3");
 
-        //color curve test
-        testImage.curveImage(ColorCurves.INVERT);
-        testImage.fileImage("test4");
+
 
         //resizing tests
-        testImage.scaleImage(10,10);
+
+        testImage.scaleImage(0.5,0.5);
+        testImage.fileImage("test0");
+
+        testImage.scaleImage(2.0,2.0);
         testImage.fileImage("test1");
-        testImage.scaleImage(1000,1000);
+
+        testImage.scaleImage(1.567,1.567);
         testImage.fileImage("test2");
+
+        testImage.scaleImage(3.9,0.14);
+        testImage.fileImage("test3");
+
+
+        testImage.scaleImage(0.5,0.5);
+        testImage.fileImage("test4");
 
 
 

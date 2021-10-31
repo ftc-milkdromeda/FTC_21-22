@@ -40,8 +40,8 @@ public class Image {
 
     /**
      * sets this image to the bmp image given by the input stream of bytes.
-     * @param in
-     * @return
+     * @param in the input stream
+     * @return Any Errors that crop up
      */
     public Error setImage(InputStream in)
     {
@@ -54,7 +54,7 @@ public class Image {
         {
             return DataError.FILE_WRITING_ERROR;
         }
-        image = new Pixel[tempImage.image.getHeight()][tempImage.image.getWidth()];
+        image = new Pixel[tempImage.image.getWidth()][tempImage.image.getHeight()];
         for(int xValue = 0; xValue < image.length; xValue++)
         {
             for(int yValue = 0; yValue < image[xValue].length; yValue++)
@@ -122,30 +122,9 @@ public class Image {
         return GeneralError.NO_ERROR;
     }
 
-    /**
-     * scaling images, making them bigger or smaller
-    *using a simple nearest neighbor interpolation.
-     */
-    public Error scaleImage(int outputX, int outputY)
-    {
-        //first, find the scale factors for the new width and height.
-        double scaleX = (double)outputX/image.length;
-        double scaleY = (double)outputY/image[0].length;
-        //create output image
-        Pixel[][] output = new Pixel[outputX][outputY];
 
-        //for each pixel in the output, use the closest(in coordinates) pixel from the input image.
-        for(int i = 0; i < outputX; i++)
-        {
-            for(int j = 0; j < outputY; j++)
-            {
-                //actually doing the scaling
-                output[i][j] = image[(int)(i/scaleX)][(int)(j/scaleY)];
-            }
-        }
-    image = output;
-    return GeneralError.NO_ERROR;
-    }
+
+
 
     /**
      * /crops images by taking advantage of the array implementation of it.
@@ -155,7 +134,7 @@ public class Image {
      * @param lastY lastX end of the range we want to keep, vertically
      * @return any Errors that crop up.
      */
-     public Error cropImage(int firstX, int lastX, int firstY, int lastY)
+     public Error cropImage(int firstX, int firstY, int lastX, int lastY)
      {
          Pixel[][] temp = image;
          image = new Pixel[Math.abs(lastX - firstX)][Math.abs(lastY - firstY)];
@@ -182,49 +161,83 @@ public class Image {
         return GeneralError.NO_ERROR;
      }
 
+
     /**
-     * downscaling, average the pixels out, using a box averaging algorithm
-     * @param outputX the width of the image after scaling
-     * @param outputY the height of the image after scaling
+     * Scales the image by a horizontal and vertical factor. This factor must be greater than 0.
+     * @param xScale the horizontal scaling factor
+     * @param yScale the vertical scaling factor
      * @return
      */
-
-    public Error downscaleImage(int outputX, int outputY)
+    public Error scaleImage(double xScale, double yScale)
     {
-
-        //output image created
-        Pixel[][] output = new Pixel[outputX][outputY];
-
-        //width and height of boxes made
-        int boxWidth = (int)((double)image.length/outputX + 1);
-        int boxHeight = (int)((double)image[0].length/outputY + 1);
-
-        //for each pixel in output, replace with average of all values in the box corresponding to
-        //the output pixel in the input image.
-        for(int i = 0; i < outputX; i++)
+        if(xScale <= 0 || yScale <= 0)
         {
-            for (int j = 0; j < outputY; j++)
+            return ImageError.SCALE_FACTOR_NEGATIVE_ERROR;
+        }
+        int newX = (int)(xScale * image.length);
+        int newY = (int)(yScale * image[0].length);
+
+        xScale = 1/xScale;
+        yScale = 1/yScale;
+        Coordinate[][] rect0 = new Coordinate[newX][newY];
+
+        double rectX = 0;
+        for(int i = 0; i < newX; i++)
+        {
+            double rectY = 0;
+            for(int j = 0; j < newY; j++)
             {
-            int endX = Math.min(i + boxWidth,image.length - 1);
-            int endY = Math.min(j + boxHeight,image[0].length - 1);
-
-            Pixel average = new Pixel();
-                for(int k = i; k < endX; i++)
-                {
-                    for (int l = j; l < endY; j++)
-                    {
-                        average.addPixel(image[k][l]);
-
-                    }
-                }
-                int boxSize = (endX - i) * (endY - j);
-                average.setPixel(average.getRed()/boxSize, average.getGreen()/boxSize, average.getBlue()/boxSize);
-                output[i][j] = new Pixel(average);
+                rect0[i][j] = new Coordinate(rectX, rectY);
+                rectY += yScale;
+            }
+            rectX += xScale;
+        }
+        Pixel[][] newImage = new Pixel[newX][newY];
+        final int pixelPerIter = (int)(Math.ceil(xScale) * Math.ceil(yScale));
+        class PixelData
+        {
+            Pixel pix;
+            double freq;
+            PixelData(Pixel pix, double freq)
+            {
+                this.pix = pix;
+                this.freq = freq;
             }
         }
-        image = output;
-        return GeneralError.NO_ERROR;
+        for(int i = 0; i < newX; i++) {
+            for (int j = 0; j < newY; j++)
+            {
+                double averageR = 0;
+                double averageG = 0;
+                double averageB = 0;
+                for(int x = (int)rect0[i][j].x; x < Math.ceil(rect0[i][j].x + xScale); x++)
+                {
 
+                    double pixelXLength =( (x + 1) < (xScale + rect0[i][j].x) ? (x + 1) : (xScale + rect0[i][j].x))-
+                        ((x > rect0[i][j].x)? x : rect0[i][j].x);
+
+                    for(int y = (int)rect0[i][j].y; y < Math.ceil(rect0[i][j].y + yScale); y++)
+                    {
+                        double pixelYLength =( (y + 1) < (yScale + rect0[i][j].y) ? (y + 1) : (yScale + rect0[i][j].y))-
+                                ((y > rect0[i][j].y)? y : rect0[i][j].y);
+                        averageR += Math.pow(image[x][y].getRed(), 2) * pixelXLength * pixelYLength / (xScale * yScale);
+                        averageG += Math.pow(image[x][y].getGreen(), 2) * pixelXLength * pixelYLength / (xScale * yScale);
+                        averageB += Math.pow(image[x][y].getBlue(), 2) * pixelXLength * pixelYLength / (xScale * yScale);
+
+
+
+                    }
+
+                }
+                averageR = Math.pow(averageR,0.5);
+                averageG = Math.pow(averageG,0.5);
+                averageB = Math.pow(averageB,0.5);
+                newImage[i][j] = new Pixel((int)averageR,(int)averageG,(int)averageB);
+            }
+        }
+
+        image = newImage;
+        return GeneralError.NO_ERROR;
     }
 
 
@@ -299,5 +312,20 @@ public class Image {
 
 
         return GeneralError.NO_ERROR;
+    }
+
+
+    /**
+     * private class that'll help with downsampling
+     */
+    private class Coordinate
+    {
+        double x, y;
+        Coordinate(double x, double y)
+        {
+            this.x = x;
+            this.y = y;
+        }
+
     }
 }

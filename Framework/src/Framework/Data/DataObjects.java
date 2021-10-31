@@ -39,6 +39,14 @@ public class DataObjects {
      */
     public void addData(String m, Object d)
     {
+        for(int i = 0; i < data.size(); i++)
+        {
+            if(messages.get(i).equals(m))
+            {
+                data.set(i, d);
+                return;
+            }
+        }
         data.add(d);
         messages.add(m);
         updateTime();
@@ -66,6 +74,32 @@ public class DataObjects {
     }
 
     /**
+     * Sets the data at index d to a specified value.
+     * @param index the input index
+     * @param d the input data
+     */
+    public void setData(int index, Object d)
+    {
+        data.set(index,d);
+    }
+
+    /**
+     * set the data with message m to the object d
+     * @param m the input message
+     * @param d the input data
+     */
+    public void setData(String m, Object d)
+    {
+        for(int i = 0; i < messages.size(); i++)
+        {
+            if(messages.get(i).equals(m))
+            {
+                setData(i,d);
+                return;
+            }
+        }
+    }
+    /**
      *sets time(the instance variable) to the current time.
      */
     public void updateTime()
@@ -82,13 +116,13 @@ public class DataObjects {
     public String toString()
     {
         String str = "";
-        str += "Data from " + source + " at " + time + ":\n";
+        str += source + " @ " + time + ": ";
         for(int i = 0; i < data.size(); i++)
         {
             str += "\t";
             str += getData(i);
-            str += "\n";
         }
+        str += "\n";
         return str;
     }
 
