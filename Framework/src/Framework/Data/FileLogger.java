@@ -13,6 +13,8 @@ public class FileLogger
     File logFile;
     private Error status;
 
+    //add a way to make a different extension
+
     /**
      * constructors
      * @param filename the name of the file logs will be put in.
