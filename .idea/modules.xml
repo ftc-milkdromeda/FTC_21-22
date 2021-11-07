@@ -5,6 +5,7 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/FTC_21-22.iml" filepath="$PROJECT_DIR$/.idea/FTC_21-22.iml" />
       <module fileurl="file://$PROJECT_DIR$/Framework/Framework.iml" filepath="$PROJECT_DIR$/Framework/Framework.iml" />
       <module fileurl="file://$PROJECT_DIR$/RobotCode/RobotCode.iml" filepath="$PROJECT_DIR$/RobotCode/RobotCode.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Test/Test.iml" filepath="$PROJECT_DIR$/Test/Test.iml" />
     </modules>
   </component>
 </project>
