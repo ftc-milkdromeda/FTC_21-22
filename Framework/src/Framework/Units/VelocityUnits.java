@@ -1,6 +1,7 @@
 package Framework.Units;
 
 public enum VelocityUnits {
+    NORMALIZEDUNIT(1),
     MET_SEC(1),
     MIL_HOUR(1609.344 / 3600);
 

@@ -2,6 +2,7 @@ package Framework.Units;
 
 public enum AngleUnits {
     RAD(1),
+    NORMALIZEDUNIT(1),
     DEG(Math.PI / 180);
 
     AngleUnits(double conversionFactor) {

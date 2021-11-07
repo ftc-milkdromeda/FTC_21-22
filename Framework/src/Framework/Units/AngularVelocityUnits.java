@@ -1,6 +1,7 @@
 package Framework.Units;
 
 public enum AngularVelocityUnits {
+    NORMALIZEDUNIT(1),
     RAD_SEC(1),
     REV_MIN(2 * Math.PI / 60);
 

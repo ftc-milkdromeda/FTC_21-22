@@ -1,6 +1,7 @@
 package Framework.Units;
 
 public enum LengthUnits {
+    NORMALIZEDUNIT(1),
     METER(1),
     cMETER(1.0 / 100),
     mMETER(1.0 / 1000),
