@@ -1,13 +1,13 @@
 package Main;
 
 import Framework.Drivers.DriverManager;
-import RobotCode.Drivers.DriverDirectory;
+import RobotCode.Drivers.DriverList;
 import RobotCode.Opmodes.TestOpMode;
 import RobotCode.Opmodes.TestOpMode1;
 
 public class OpModeTest {
     public static void main(String [] args) {
-        DriverManager manager = new DriverManager(DriverDirectory.NULL_TYPE.getID());
+        DriverManager manager = new DriverManager(DriverList.LENGTH.getID());
 
         TestOpMode opmode = new TestOpMode(manager);
         TestOpMode1 opmode1 = new TestOpMode1(manager);
