@@ -6,7 +6,7 @@ import Framework.GeneralError;
 
 /**
  * @author Tyler Wang
- * a abstract class which can be extended to create Drivers,
+ * a abstract class which can be extended to create RobotCode.Drivers,
  * which are interfaces between Tasks and the mechanical components
  * of the robot.
  */
