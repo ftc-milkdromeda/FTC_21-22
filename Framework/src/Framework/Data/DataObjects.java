@@ -110,7 +110,7 @@ public class DataObjects {
     }
 
     /**
-     *
+     * An override of the toString method. Returns a string.
      * @return every piece of data in the object, concatenated into one String.
      */
     public String toString()

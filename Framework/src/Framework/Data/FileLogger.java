@@ -10,11 +10,18 @@ import java.io.IOException;
 public class FileLogger
 {
     //instance variables
-    File logFile;
+    private File logFile;
     private Error status;
+    private String fileExtension = "txt";
 
-    //add a way to make a different extension
-
+    /**
+     * Changes the file extension, which defaults to .txt
+     * @param fe the file type that the log will be saved as
+     */
+    public void setFileExtension(String fe)
+    {
+        fileExtension = fe;
+    }
     /**
      * constructors
      * @param filename the name of the file logs will be put in.
@@ -22,7 +29,7 @@ public class FileLogger
     public FileLogger(String filename)
     {
         try {
-            logFile = new File(filename + ".txt");
+            logFile = new File(filename + "." + fileExtension);
             if (logFile.createNewFile()) {
                 status = GeneralError.NO_ERROR;
             } else {
@@ -60,7 +67,7 @@ public class FileLogger
 
     /**
      * getter for status.
-     * @return
+     * @return the current status, which may include errors and the like.
      */
     public Error getStatus()
     {

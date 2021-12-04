@@ -109,6 +109,8 @@ public class Image {
 
     /**
      * color curve method, sets all pixels in range according to the formula.
+     * @param c A colorcurve object that defines the formula that each pixel will be put through.
+     * @return any Errors that crop up.
      */
     public Error curveImage(ColorCurves c)
     {
@@ -253,6 +255,7 @@ public class Image {
     }
 
     /**
+     * another getter, now for the image itself
      * @return the entire image
      */
     public Pixel[][] getImage()
@@ -316,7 +319,7 @@ public class Image {
 
 
     /**
-     * private class that'll help with downsampling
+     * private class that'll help with downsampling/scaling
      */
     private class Coordinate
     {
