@@ -7,14 +7,6 @@
     </content>
     <orderEntry type="jdk" jdkName="14" jdkType="JavaSDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="Framework" exported="" />
-    <orderEntry type="library" name="Gradle: org.firstinspires.ftc:Blocks:6.2.1@aar" level="application" />
-    <orderEntry type="library" name="Gradle: org.firstinspires.ftc:FtcCommon:6.2.1@aar" level="application" />
-    <orderEntry type="library" name="Gradle: org.firstinspires.ftc:Hardware:6.2.1@aar" level="application" />
-    <orderEntry type="library" name="Gradle: org.firstinspires.ftc:Inspection:6.2.1@aar" level="application" />
-    <orderEntry type="library" name="Gradle: org.firstinspires.ftc:OnBotJava:6.2.1@aar" level="application" />
-    <orderEntry type="library" name="Gradle: org.firstinspires.ftc:RobotCore:6.2.1@aar" level="application" />
-    <orderEntry type="library" name="Gradle: org.firstinspires.ftc:RobotServer:6.2.1@aar" level="application" />
-    <orderEntry type="library" name="Gradle: org.firstinspires.ftc:tfod:1.0.2@aar" level="application" />
+    <orderEntry type="module" module-name="Framework" />
   </component>
 </module>
