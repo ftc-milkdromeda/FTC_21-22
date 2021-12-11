@@ -6,14 +6,12 @@ import Framework.GeneralError;
 
 /**
  * @author Tyler Wang
- * a abstract class which can be extended to create RobotCode.Drivers,
- * which are interfaces between Tasks and the mechanical components
+ * A abstract class which can be extended to create {@link Driver Drivers}, which are interfaces between {@link Task Tasks} and the mechanical components
  * of the robot.
  */
 public abstract class Driver {
     /**
-     * a simple constructor which takes the type of this driver,
-     * and sets up this Driver as inactive.
+     * A simple constructor which takes a {@link DriverType} and sets up this {@link Driver}.
      * @param type which part of the robot this Driver is for.
      */
     protected Driver(DriverType type) {
@@ -24,33 +22,31 @@ public abstract class Driver {
     }
 
     /**
-     * a function that returns all the basic information for this driver.
-     * @return the string "Driver: [driverID] [driverType]".
+     * A function that returns all the basic information for this {@link Driver}.
+     * @return the string "Driver: [ID][{@link DriverType}]".
      */
     public String toString() {
         return "Driver: " + this.driverType.getID() + " " + driverType;
     }
 
     /**
-     * a simple getter for the driverType.
-     * @return the type of this driver.
+     * A simple getter for the {@link DriverType}.
+     * @return the type of this {@link Driver}.
      */
     public DriverType getType() {
         return this.driverType;
     }
 
     /**
-     * a getter for the current state of this driver.
-     * @return if this Driver is active or not.
+     * A method that returns wheter current {@link Driver} is or is not initialized.
+     * @return if this {@link Driver} is active or not.
      */
     public boolean isActive() {
         return this.isActive;
     }
 
     /**
-     * a method that binds this driver to a task, so that task can
-     * use this Driver without interrupting first.
-     * It checks for the Driver already being bound first.
+     * A method that binds this {@link Driver} to a {@link Task}, so that a {@link Task} can use this {@link Driver} without interrupting first.
      * @param task the task that this Driver will be bound to.
      * @return an DRIVER_ALREADY_BOUND Error if that's the case, no error otherwise.
      */
@@ -64,7 +60,7 @@ public abstract class Driver {
     }
 
     /**
-     * Unbinds this Driver from a task, so all tasks using this Driver must interrupt first.
+     * Unbinds this {@link Driver} from a {@link Task}.
      * @param task the task that this Driver will be unbound from.
      * @return DRIVER_NOT_BOUND_TO_TASK error if that's the case, no error otherwise.
      */
@@ -77,12 +73,12 @@ public abstract class Driver {
     }
 
     /**
-     *runs the init() function, with some error handling.
+     * Initializes the {@link Thread}.
      * @return DRIVER_ALREADY_ACTIVE error if this Driver is, and any errors that init() throws.
      */
     Error start() {
         if(isActive)
-            return DriverError.DRIVER_ALREADY_ACTIVE;
+            return DriverError.DRIVERS_NOT_INIT;
 
         Error output = this.init();
         if(output != GeneralError.NO_ERROR)
@@ -94,12 +90,12 @@ public abstract class Driver {
     }
 
     /**
-     * runs the destructor() function, with some error handling.
-     * @return DRIVER_NOT_ACTIVE error if that's the case, and any errors that destructor() throws.
+     * A function that terminates the {@link Driver}.
+     * @return {@link DriverError#DRIVERS_NOT_INIT}: issued if the {@link Driver} has not been initialized.
      */
     Error terminate() {
         if(!isActive)
-            return DriverError.DRIVER_NOT_ACTIVE;
+            return DriverError.DRIVERS_NOT_INIT;
 
         Error output = this.destructor();
         if(output != GeneralError.NO_ERROR)
@@ -111,29 +107,29 @@ public abstract class Driver {
     }
 
     /**
-     * an initializer, to be overridden in implementations of this class.
-     * @return NO_ERROR
+     * An optional class that is defined to aid int he process of destroying an instance of its implementation.
+     * @return returns the errors associated with the specific implementation.
      */
     protected Error init() {
         return GeneralError.NO_ERROR;
     }
+
     /**
-     * a destructor, to be overridden in implementations of this class.
-     * @return NO_ERROR
+     * An optional class that is defined to aid in the process of destroy an instance of its implementation.
+     * @return returns the errors associated with the specific implementation.
      */
     protected Error destructor() {
         return GeneralError.NO_ERROR;
     }
 
-
     /**
-     * checks if a call to this Driver can actually be run, throwing errors if not.
-     * @param task the task whose call will be validated.
-     * @return any errors, like this Driver not being active, Driver already being interrupted, or something else.
+     * Checks if a call to this {@link Driver} can actually be made, returning errors if not.
+     * @param task the {@link Task} whose call will be validated.
+     * @return {@link DriverError#DRIVERS_NOT_INIT}: Issued when the {@link Driver} has not been initialized. {@link DriverError#DRIVER_IS_INTERRUPTED}: Issued when the current {@link Driver} is being interrupted. {@link DriverError#DRIVER_NOT_BOUND_TO_TASK}: Issued when the calling {@link Task} doesn't have access to the current {@link Driver}. {@link GeneralError#NO_ERROR}: issued when the call from the {@link Task} is valid.
      */
     protected Error validateCall(Task task) {
         if(!this.isActive)
-            return DriverError.DRIVER_NOT_ACTIVE;
+            return DriverError.DRIVERS_NOT_INIT;
 
         if(this.interruptTask != null && this.attachedTask == task)
             return DriverError.DRIVER_IS_INTERRUPTED;
@@ -145,7 +141,7 @@ public abstract class Driver {
     }
 
     /**
-     * a nested class used to run instructions from interrupting tasks.
+     * A class that is used to run instructions for a {@link Task} when the {@link Driver} is not explicitly allocated to the {@link Task}.
      */
     public abstract class InterruptHandler {
         /**
