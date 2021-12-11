@@ -6,7 +6,7 @@
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
     </content>
     <orderEntry type="jdk" jdkName="16" jdkType="JavaSDK" />
-    type="sourceFolder" forTests="false" />
+    <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="ejml-v0.42-SNAPSHOT" level="project" />
   </component>
 </module>
