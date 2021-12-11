@@ -5,7 +5,6 @@ import Framework.Tasks.Clock;
 import Framework.Tasks.TaskManager;
 import RobotCode.Drivers.DriverDirectory;
 import RobotCode.Drivers.TestDriver1;
-import RobotCode.Drivers.TestDriver1_1;
 import RobotCode.Drivers.TestDriver2;
 import RobotCode.Tasks.TestTask1;
 import RobotCode.Tasks.TestTask2;

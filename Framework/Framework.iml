@@ -9,5 +9,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="BMP-IO" exported="" />
     <orderEntry type="library" name="net.objecthunter.exp4j" level="project" />
+    <orderEntry type="library" name="Vuforia" level="project" />
   </component>
 </module>

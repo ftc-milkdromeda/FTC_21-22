@@ -11,7 +11,7 @@ public class ConsoleLogger {
     Console console;
 
     /**
-     * Default constructor
+     * Default constructor; sets the console to .out
      */
     public ConsoleLogger()
     {

@@ -53,7 +53,8 @@ public class GrayscalePixel extends Pixel{
         color = c;
     }
 
-    //getters
+    //getters for the values of each pixel. It'll be the same for each,
+    // so this is just in case.
     public int getRed()
     {
         return color;
@@ -67,7 +68,8 @@ public class GrayscalePixel extends Pixel{
         return color;
     }
 
-    //setters
+    //setters. Since there's only one color in the pixel,
+    //all of these will just set the grayness.
     public void setRed(int r){
         if(r > 255)
         {
