@@ -2,7 +2,8 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/FtcRobotController" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/ejml" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/FtcRobotController" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/BMP-IO" vcs="Git" />
   </component>
 </project>
