@@ -24,6 +24,16 @@ public class Image {
     public Image() {
         this.image = null;
     }
+    public Image(Image o)  {
+        if(o.image == null)
+            return;
+
+        this.image = new Pixel[o.getWidth()][o.getHeight()];
+        for (int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++)
+                this.image[i][j] = o.image[i][j];
+        }
+    }
 
     /**
      * sets this image to the bmp image given by the input stream of bytes.
@@ -42,7 +52,6 @@ public class Image {
             return GeneralError.FILE_IO_ERROR;
         }
 
-        System.out.println(img.getType());
         if(img.getType() != BufferedImage.TYPE_3BYTE_BGR && img.getType() != BufferedImage.TYPE_4BYTE_ABGR)
             return ImageError.IMAGE_INCOMPATIBLE_TYPE;
 
@@ -179,13 +188,13 @@ public class Image {
                 double averageR = 0;
                 double averageG = 0;
                 double averageB = 0;
-                for(int x = (int)rect0[i][j].x; x < Math.ceil(rect0[i][j].x + xScale); x++)
+                for(int x = (int)rect0[i][j].x; x < (Math.ceil(rect0[i][j].x + xScale) > this.image.length ? this.image.length : Math.ceil(rect0[i][j].x + xScale)); x++)
                 {
 
                     double pixelXLength =( (x + 1) < (xScale + rect0[i][j].x) ? (x + 1) : (xScale + rect0[i][j].x))-
                         ((x > rect0[i][j].x)? x : rect0[i][j].x);
 
-                    for(int y = (int)rect0[i][j].y; y < Math.ceil(rect0[i][j].y + yScale); y++)
+                    for(int y = (int)rect0[i][j].y; y < (Math.ceil(rect0[i][j].y + yScale) > this.image[i].length ? this.image[i].length : Math.ceil(rect0[i][j].y + yScale)); y++)
                     {
                         double pixelYLength =( (y + 1) < (yScale + rect0[i][j].y) ? (y + 1) : (yScale + rect0[i][j].y))-
                                 ((y > rect0[i][j].y)? y : rect0[i][j].y);
@@ -260,6 +269,75 @@ public class Image {
 
     }
 
+    public Error curveAdjAll(Pixel.Curve curve, int x, int y) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        this.image[x][y].curveAll(curve);
+
+        return GeneralError.NO_ERROR;
+    }
+    public Error curveAdjR(Pixel.Curve curve, int x, int y) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        this.image[x][y].curveR(curve);
+
+        return GeneralError.NO_ERROR;
+
+    }
+    public Error curveAdjG(Pixel.Curve curve, int x, int y) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        this.image[x][y].curveG(curve);
+
+        return GeneralError.NO_ERROR;
+    }
+    public Error curveAdjB(Pixel.Curve curve, int x, int y) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        this.image[x][y].curveB(curve);
+
+        return GeneralError.NO_ERROR;
+
+    }
+
+    public Error setPixel(int x, int y, Pixel pixel) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+        if(this.image[0][0] != null ? this.image[0][0].isGray() != pixel.isGray() : true)
+            return ImageError.COLOR_NOT_CONSISTENT;
+        if(this.image.length <= x || this.image[0].length <= y)
+            return ImageError.POSTION_NOT_WITHIN_IMAGE;
+
+        this.image[x][y] = pixel.copy();
+
+        return GeneralError.NO_ERROR;
+    }
+
+    public Pixel findBrightest() {
+        Pixel brightest = (Pixel)new RGBPixel(0.0, 0.0, 0.0);
+        for(int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[i].length; j++)
+                if(this.image[i][j].getLuminance() > brightest.getLuminance())
+                    brightest = this.image[i][j];
+        }
+
+        return brightest.copy();
+    }
+    public Pixel findDimmest() {
+        Pixel dimmest = (Pixel)new RGBPixel(1.0, 1.0, 1.0);
+        for(int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[i].length; j++)
+                if(this.image[i][j].getLuminance() < dimmest.getLuminance())
+                    dimmest = this.image[i][j];
+        }
+
+        return dimmest.copy();
+    }
+
     /**
      * getter for individual pixels
      * @param x horizontal position of pixel
@@ -308,7 +386,7 @@ public class Image {
         return GeneralError.NO_ERROR;
     }
 
-    public Error toGray() {
+    public Error toMono() {
         if(this.image == null)
             return ImageError.IMAGE_NOT_SET;
 
@@ -321,6 +399,26 @@ public class Image {
         }
 
         return GeneralError.NO_ERROR;
+    }
+    public Error toRGB() {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        for(int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++) {
+                if(this.image[i][j].isGray())
+                    this.image[i][j] = ((MonochromePixel)this.image[i][j]).toRGB();
+            }
+        }
+
+        return  GeneralError.NO_ERROR;
+    }
+
+    public int getHeight() {
+        return this.image != null ? this.image[0] == null ? 0 : this.image[0].length : 0;
+    }
+    public int getWidth() {
+        return this.image != null ? this.image.length : 0;
     }
 
     /**

@@ -25,8 +25,7 @@ public class ImageTest {
 
         long startTime = System.currentTimeMillis();
 
-        /*
-        testImage.scaleImage(0.5,0.5);
+        testImage.scaleImage(0.9,0.5);
         testImage.saveImage("test0");
 
         testImage.scaleImage(2.0,2.0);
@@ -42,15 +41,12 @@ public class ImageTest {
         testImage.saveImage("test4");
 
 
-         */
 
         //testImage.cropImage(350, 750, 700, 100);
 
         testImage.curveAdjAll(x -> 1/(1+Math.exp(-23*(x-0.4))));
 
         testImage.saveImage("croptest.png");
-
-
     }
 
 }
