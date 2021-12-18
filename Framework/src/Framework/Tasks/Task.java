@@ -191,6 +191,8 @@ public abstract class Task extends Thread{
     protected Error waitForClockCycle() throws InterruptedException {
         if(this.taskClockID == -1)
             return TaskError.NO_CLOCK_DEFINED;
+        if(this.taskIsPaused)
+            return GeneralError.NO_ERROR;
 
         this.exitState = this.clock.taskReady(this);
 
