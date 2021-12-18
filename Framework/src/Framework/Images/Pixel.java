@@ -1,98 +1,35 @@
 package Framework.Images;
 
-public class Pixel {
-    //instance variables
-    private int red, green, blue;
+public interface Pixel {
+    double getRed();
+    double getGreen();
+    double getBlue();
 
-    //constructor
-    public Pixel(int r, int g, int b)
-    {
-        red = r;
-        green = g;
-        blue = b;
-    }
-    public Pixel(Pixel other)
-    {
-        this(other.getRed(), other.getGreen(), other.getBlue());
-    }
-    public Pixel()
-    {
-        this(0,0,0);
-    }
-    //setters
-    public void setPixel(int r, int g, int b)
-    {
-        red = r;
-        green = g;
-        blue = b;
-    }
+    double getLuminance();
 
-    /**
-     * sets this pixel to another one, individually changing the color values to match
-     * @param other the pixel it's going to be set to.
-     */
-    public void setPixel(Pixel other)
-    {
-        red = other.getRed();
-        green = other.getGreen();
-        blue = other.getBlue();
+    void setRed(double value);
+    void setGreen(double value);
+    void setBlue(double value);
+
+    Pixel copy();
+
+    void curveAll(Curve curve);
+    void curveR(Curve curve);
+    void curveG(Curve curve);
+    void curveB(Curve curve);
+
+    boolean isGray();
+
+    static void RGB888ToPixel_converter(int pixel, Pixel output) {
+        output.setRed((pixel >> 16 & 0xff) / 255.0);
+        output.setGreen((pixel >> 8 & 0xff) / 255.0);
+        output.setBlue((pixel & 0xff) / 255.0);
+    }
+    static int PixelToRGB888_converter(Pixel pixel) {
+         return (int)(Math.round(pixel.getRed() * 255) << 16 | Math.round(pixel.getGreen() * 255) << 8 | Math.round(pixel.getBlue() * 255));
     }
 
-    /**
-     * add the values of this pixel and other.
-     * @param other the pixel whose value will be added to this one.
-     */
-    public void addPixel(Pixel other)
-    {
-        this.red += other.getRed();
-        this.green += other.getGreen();
-        this.blue += other.getBlue();
+    interface Curve {
+        double evaluate(double input);
     }
-    //instance variable getters
-    public int getRed()
-    {
-        return red;
-    }
-    public int getGreen()
-    {
-        return green;
-    }
-    public int getBlue()
-    {
-        return blue;
-    }
-
-    //instance variable setters
-    public void setRed(int r){
-        if(r > 255)
-        {
-            r = 255;
-        }
-        if(r < 0)
-        {
-            r = 0;
-        }
-        red = r; }
-    public void setGreen(int g){
-        if(g > 255)
-        {
-            g = 255;
-        }
-        if(g < 0)
-        {
-            g = 0;
-        }
-        green = g;}
-    public void setBlue(int b){
-        if(b > 255)
-        {
-            b = 255;
-        }
-        if(b < 0)
-        {
-            b = 0;
-        }
-        blue = b;}
-
-
 }

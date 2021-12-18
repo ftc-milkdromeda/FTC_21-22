@@ -6,6 +6,18 @@ package Framework;
  */
 public enum GeneralError implements Error{
     /**
+     * Issued when the developer makes an error so incredibly stupid that it has gone beyond human comprehension.
+     */
+    STUPIDITY_ERROR,
+    /**
+     * Issued when there is an issue with file io.
+     */
+    FILE_IO_ERROR,
+    /**
+     * Issued when a function cannot be found  in a given file.
+     */
+    FILE_NOT_FOUND,
+    /**
      * Issued when a function returns without any errors.
      */
     NO_ERROR;
