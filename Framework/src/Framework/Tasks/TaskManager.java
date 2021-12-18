@@ -81,8 +81,10 @@ public final class TaskManager {
      */
     public static Error stopTask() {
         Error error = GeneralError.NO_ERROR;
+        Task[] list = new Task[TaskManager.taskList.size()];
+        list = TaskManager.taskList.toArray(list);
 
-        for(Task task : TaskManager.taskList) {
+        for(Task task : list) {
             error = task.endTask();
 
             if(error != GeneralError.NO_ERROR)
@@ -149,6 +151,9 @@ public final class TaskManager {
      * @return {@link TaskError#DRIVER_NOT_BOUND_TO_TASK}: issued when a {@link Driver} in the list that is attempted to be unbound is not bound to the calling {@link Task}. {@link GeneralError#NO_ERROR}: Issued when the function exited without any errors.
      */
     static Error unbindDrivers(Task callingTask, DriverList drivers) {
+        if(drivers.boundDrivers == null)
+            return GeneralError.NO_ERROR;
+
         for(int i = 0; i < drivers.boundDrivers.length; i++) {
             if(DriverError.DRIVER_NOT_BOUND_TO_TASK == TaskManager.manager.getDriver(drivers.boundDrivers[i]).unbindDriver(callingTask))
                 return TaskError.DRIVER_NOT_BOUND_TO_TASK;
