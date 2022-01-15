@@ -91,6 +91,7 @@ public class Image {
     public Error setImage(Pixel[][] image) {
         this.image = new Pixel[image.length][];
         for(int i = 0; i < image.length; i++) {
+            this.image[i] = new Pixel[image[i].length];
             for(int j = 0; j < image[i].length; j++) {
                 this.image[i][j] = image[i][j].copy();
             }
