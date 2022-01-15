@@ -5,6 +5,9 @@ import java.io.*;
 
 import Framework.Error;
 import Framework.GeneralError;
+import io.nayuki.bmpio.AbstractRgb888Image;
+import io.nayuki.bmpio.BmpImage;
+import io.nayuki.bmpio.BmpWriter;
 
 import javax.imageio.ImageIO;
 
@@ -35,6 +38,7 @@ public class Image {
         }
     }
 
+    //todo remove usage of awt libraries
     /**
      * sets this image to the bmp image given by the input stream of bytes.
      * @param filename name of file to read.
@@ -368,6 +372,12 @@ public class Image {
         if(this.image == null)
             return ImageError.IMAGE_NOT_SET;
 
+        try {
+            Class.forName("java.awt.image.BufferedImage");
+        } catch (ClassNotFoundException e) {
+           return this.saveImage_noAWT(filename);
+        }
+
         BufferedImage image = new BufferedImage(this.image.length, this.image[0] != null ? this.image[0].length : 0, BufferedImage.TYPE_INT_RGB);
 
         for(int i = 0; i < this.image.length; i++) {
@@ -381,6 +391,35 @@ public class Image {
             ImageIO.write(image, "png", write);
         }
         catch(IOException e) {
+            return GeneralError.FILE_IO_ERROR;
+        }
+
+        return GeneralError.NO_ERROR;
+    }
+    /**
+     * Saves the image to a file if no AWT methods are present.
+     * @param filename the name of the file the image is going to be saved to.
+     * @return any errors that crop up.
+     */
+    private Error saveImage_noAWT(String filename) {
+        BmpImage bmp = new BmpImage();
+        bmp.image = new AbstractRgb888Image(this.getWidth(), this.getHeight()) {
+            @Override
+            public int getRgb888Pixel(int x, int y) {
+                    int r = (int) (Image.this.image[x][y].getRed() * 255);
+                    int g = (int) (Image.this.image[x][y].getGreen() * 255);
+                    int b = (int) (Image.this.image[x][y].getBlue() * 255);
+                    return b | g << 8 | r << 16;
+            }
+        };
+
+        try {
+            FileOutputStream out = new FileOutputStream(filename + ".bmp");
+            BmpWriter.write(out, bmp);
+
+            out.close();
+        }
+        catch (IOException io){
             return GeneralError.FILE_IO_ERROR;
         }
 
