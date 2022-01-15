@@ -1,0 +1,3 @@
+[submodule "BMP-IO"]
+	path = BMP-IO
+	url = https://github.com/ftc-milkdromeda/BMP-IO.git
