@@ -30,7 +30,7 @@ public abstract class Task extends Thread{
      * @param clock The {@link Clock} that the task will be synchronized with.
      */
     protected Task(Clock clock) {
-        this(null, clock);
+        this(new TaskManager.DriverList(null, null), clock);
     }
 
     /**
@@ -154,6 +154,8 @@ public abstract class Task extends Thread{
         if(TaskManager.unbindDrivers(this, driverList) == TaskError.DRIVER_NOT_BOUND_TO_TASK)
             return TaskError.DRIVER_NOT_BOUND_TO_TASK;
 
+        super.interrupt();
+
         return TaskManager.removeTask(taskID);
     }
 
@@ -189,6 +191,8 @@ public abstract class Task extends Thread{
     protected Error waitForClockCycle() throws InterruptedException {
         if(this.taskClockID == -1)
             return TaskError.NO_CLOCK_DEFINED;
+        if(this.taskIsPaused)
+            return GeneralError.NO_ERROR;
 
         this.exitState = this.clock.taskReady(this);
 

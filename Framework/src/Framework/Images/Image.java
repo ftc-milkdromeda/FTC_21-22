@@ -1,132 +1,108 @@
 package Framework.Images;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 
-import Framework.Data.DataError;
 import Framework.Error;
 import Framework.GeneralError;
+import io.nayuki.bmpio.AbstractRgb888Image;
 import io.nayuki.bmpio.BmpImage;
-import io.nayuki.bmpio.BmpReader;
 import io.nayuki.bmpio.BmpWriter;
-import io.nayuki.bmpio.BufferedRgb888Image;
+
+import javax.imageio.ImageIO;
 
 /**
  * a Class that represents an image as a two-dimensional array of Pixel objects,
  * and also provides methods for manipulating them.
  */
 public class Image {
-    //column by row, so width, then height/x then y
-    private Pixel[][] image;
-
     /**
      * copy constructor
      * @param other the image to be copied.
      */
     public Image(Pixel[][] other)
     {
-        setImage(other);
+        this.setImage(other);
+    }
+    public Image() {
+        this.image = null;
+    }
+    public Image(Image o)  {
+        if(o.image == null)
+            return;
+
+        this.image = new Pixel[o.getWidth()][o.getHeight()];
+        for (int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++)
+                this.image[i][j] = o.image[i][j];
+        }
     }
 
-    /**
-     * create an image from an input stream of bytes, using the setImage method()
-     * @param in can be anything, like a file.
-     */
-    public Image(InputStream in)
-    {
-        setImage(in);
-    }
-
+    //todo remove usage of awt libraries
     /**
      * sets this image to the bmp image given by the input stream of bytes.
-     * @param in the input stream
+     * @param filename name of file to read.
      * @return Any Errors that crop up
      */
-    public Error setImage(InputStream in)
-    {
-        BmpImage tempImage;
+    public Error readImage(String filename) {
+        BufferedImage img;
         try {
-            tempImage = BmpReader.read(in);
-
+            img = ImageIO.read(new File(filename));
         }
-        catch(Exception e)
-        {
-            return DataError.FILE_WRITING_ERROR;
+        catch (FileNotFoundException e) {
+            return GeneralError.FILE_NOT_FOUND;
         }
-        image = new Pixel[tempImage.image.getWidth()][tempImage.image.getHeight()];
-        for(int xValue = 0; xValue < image.length; xValue++)
-        {
-            for(int yValue = 0; yValue < image[xValue].length; yValue++)
-            {
-                int rgb = tempImage.image.getRgb888Pixel(xValue,yValue);
-                int red = (rgb >> 16) & 0xFF;
-                int green = (rgb >> 8) & 0xFF;
-                int blue = rgb & 0xFF;
-                image[xValue][yValue] = new Pixel(red, green, blue);
+        catch (IOException e) {
+            return GeneralError.FILE_IO_ERROR;
+        }
 
+        if(img.getType() != BufferedImage.TYPE_3BYTE_BGR && img.getType() != BufferedImage.TYPE_4BYTE_ABGR)
+            return ImageError.IMAGE_INCOMPATIBLE_TYPE;
+
+        image = new Pixel[img.getWidth()][img.getHeight()];
+        for(int xValue = 0; xValue < image.length; xValue++) {
+            for(int yValue = 0; yValue < image[xValue].length; yValue++) {
+                this.image[xValue][yValue] = (Pixel) new RGBPixel();
+                Pixel.RGB888ToPixel_converter(img.getRGB(xValue, yValue), this.image[xValue][yValue]);
             }
         }
 
-
         return GeneralError.NO_ERROR;
     }
-
     /**
      * sets each pixel in the image to 0,0,0
      * @return Errors, if there are any.
      */
-    public Error setImage()
-    {
-        for(int i = 0; i < image.length; i++)
-        {
-            for(int j = 0; j < image[i].length; j++)
-            {
-                image[i][j].setPixel(0,0,0);
+    public Error clearImage() {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        for (Pixel[] rgbPixels : image) {
+            for (Pixel rgbPixel : rgbPixels) {
+                rgbPixel.setRed(0);
+                rgbPixel.setGreen(0);
+                rgbPixel.setBlue(0);
             }
         }
+
         return GeneralError.NO_ERROR;
     }
-
     /**
      * copy setImage
      * @param image the image that this image will become a copy of
      * @return any errors that crop up
      */
     public Error setImage(Pixel[][] image) {
-        //this.image = image;
-        this.image = new Pixel[image.length][image[0].length];
-        for(int i = 0; i < image.length; i++)
-        {
-            for(int j = 0; j < image[i].length; j++)
-            {
-                image[i][j] = new Pixel(image[i][j]);
+        this.image = new Pixel[image.length][];
+        for(int i = 0; i < image.length; i++) {
+            this.image[i] = new Pixel[image[i].length];
+            for(int j = 0; j < image[i].length; j++) {
+                this.image[i][j] = image[i][j].copy();
             }
         }
+
         return GeneralError.NO_ERROR;
     }
-
-
-    /**
-     * color curve method, sets all pixels in range according to the formula.
-     * @param c A colorcurve object that defines the formula that each pixel will be put through.
-     * @return any Errors that crop up.
-     */
-    public Error curveImage(ColorCurves c)
-    {
-        for(int i = 0; i < image.length; i++)
-        {
-            for(int j = 0; j < image[i].length; j++)
-            {
-                c.evaluate(image[i][j]);
-            }
-        }
-        return GeneralError.NO_ERROR;
-    }
-
-
-
-
 
     /**
      * /crops images by taking advantage of the array implementation of it.
@@ -136,33 +112,40 @@ public class Image {
      * @param lastY lastX end of the range we want to keep, vertically
      * @return any Errors that crop up.
      */
-     public Error cropImage(int firstX, int firstY, int lastX, int lastY)
-     {
-         Pixel[][] temp = image;
-         image = new Pixel[Math.abs(lastX - firstX)][Math.abs(lastY - firstY)];
+     public Error cropImage(int firstX, int firstY, int lastX, int lastY) {
+         if(this.image == null)
+             return ImageError.IMAGE_NOT_SET;
 
-         if(firstX > lastX)
-         {
+         if(firstX > lastX) {
              int tempX = lastX;
-              lastX = firstX;
-              firstX = tempX;
+             lastX = firstX;
+             firstX = tempX;
          }
-         if(firstY > lastY)
-         {
+         if(firstY > lastY) {
              int tempY = lastY;
              lastY = firstY;
              firstY = tempY;
          }
-         for(int i = firstX; i < lastX; i++)
-         {
-             for(int j = firstY; j < lastY; j++)
-             {
-                 image[i - firstX][j - firstY] = new Pixel(temp[i][j]);
+
+         int width = this.image[0] != null ? this.image[0].length : 0;
+
+         firstX = firstX < 0 ? 0 : firstX;
+         firstY = firstY < 0 ? 0 : firstY;
+         lastX = lastX > this.image.length ? this.image.length : lastX;
+         lastY = lastY > width ?  width: lastY;
+
+         Pixel[][] buffer = new Pixel[lastX - firstX][lastY - firstY];
+
+         for(int i = firstX; i < lastX; i++) {
+             for(int j = firstY; j < lastY; j++) {
+                 buffer[i - firstX][j - firstY] = this.image[i][j].copy();
              }
          }
+
+        this.image = buffer;
+
         return GeneralError.NO_ERROR;
      }
-
 
     /**
      * Scales the image by a horizontal and vertical factor. This factor must be greater than 0.
@@ -170,10 +153,11 @@ public class Image {
      * @param yScale the vertical scaling factor
      * @return
      */
-    public Error scaleImage(double xScale, double yScale)
-    {
-        if(xScale <= 0 || yScale <= 0)
-        {
+    public Error scaleImage(double xScale, double yScale) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        if(xScale <= 0 || yScale <= 0) {
             return ImageError.SCALE_FACTOR_NEGATIVE_ERROR;
         }
         int newX = (int)(xScale * image.length);
@@ -184,11 +168,9 @@ public class Image {
         Coordinate[][] rect0 = new Coordinate[newX][newY];
 
         double rectX = 0;
-        for(int i = 0; i < newX; i++)
-        {
+        for(int i = 0; i < newX; i++) {
             double rectY = 0;
-            for(int j = 0; j < newY; j++)
-            {
+            for(int j = 0; j < newY; j++) {
                 rect0[i][j] = new Coordinate(rectX, rectY);
                 rectY += yScale;
             }
@@ -196,8 +178,7 @@ public class Image {
         }
         Pixel[][] newImage = new Pixel[newX][newY];
         final int pixelPerIter = (int)(Math.ceil(xScale) * Math.ceil(yScale));
-        class PixelData
-        {
+        class PixelData {
             Pixel pix;
             double freq;
             PixelData(Pixel pix, double freq)
@@ -212,13 +193,13 @@ public class Image {
                 double averageR = 0;
                 double averageG = 0;
                 double averageB = 0;
-                for(int x = (int)rect0[i][j].x; x < Math.ceil(rect0[i][j].x + xScale); x++)
+                for(int x = (int)rect0[i][j].x; x < (Math.ceil(rect0[i][j].x + xScale) > this.image.length ? this.image.length : Math.ceil(rect0[i][j].x + xScale)); x++)
                 {
 
                     double pixelXLength =( (x + 1) < (xScale + rect0[i][j].x) ? (x + 1) : (xScale + rect0[i][j].x))-
                         ((x > rect0[i][j].x)? x : rect0[i][j].x);
 
-                    for(int y = (int)rect0[i][j].y; y < Math.ceil(rect0[i][j].y + yScale); y++)
+                    for(int y = (int)rect0[i][j].y; y < (Math.ceil(rect0[i][j].y + yScale) > this.image[i].length ? this.image[i].length : Math.ceil(rect0[i][j].y + yScale)); y++)
                     {
                         double pixelYLength =( (y + 1) < (yScale + rect0[i][j].y) ? (y + 1) : (yScale + rect0[i][j].y))-
                                 ((y > rect0[i][j].y)? y : rect0[i][j].y);
@@ -234,7 +215,7 @@ public class Image {
                 averageR = Math.pow(averageR,0.5);
                 averageG = Math.pow(averageG,0.5);
                 averageB = Math.pow(averageB,0.5);
-                newImage[i][j] = new Pixel((int)averageR,(int)averageG,(int)averageB);
+                newImage[i][j] = new RGBPixel(averageR,averageG,averageB);
             }
         }
 
@@ -242,6 +223,125 @@ public class Image {
         return GeneralError.NO_ERROR;
     }
 
+    public Error curveAdjAll(Pixel.Curve curve) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        for(int i = 0 ; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++) {
+                this.image[i][j].curveAll(curve);
+            }
+        }
+
+        return GeneralError.NO_ERROR;
+    }
+    public Error curveAdjR(Pixel.Curve curve) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        for(int i = 0 ; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++) {
+                this.image[i][j].curveR(curve);
+            }
+        }
+
+        return GeneralError.NO_ERROR;
+
+    }
+    public Error curveAdjG(Pixel.Curve curve) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        for(int i = 0 ; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++) {
+                this.image[i][j].curveG(curve);
+            }
+        }
+
+        return GeneralError.NO_ERROR;
+    }
+    public Error curveAdjB(Pixel.Curve curve) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        for(int i = 0 ; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++) {
+                this.image[i][j].curveB(curve);
+            }
+        }
+
+        return GeneralError.NO_ERROR;
+
+    }
+
+    public Error curveAdjAll(Pixel.Curve curve, int x, int y) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        this.image[x][y].curveAll(curve);
+
+        return GeneralError.NO_ERROR;
+    }
+    public Error curveAdjR(Pixel.Curve curve, int x, int y) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        this.image[x][y].curveR(curve);
+
+        return GeneralError.NO_ERROR;
+
+    }
+    public Error curveAdjG(Pixel.Curve curve, int x, int y) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        this.image[x][y].curveG(curve);
+
+        return GeneralError.NO_ERROR;
+    }
+    public Error curveAdjB(Pixel.Curve curve, int x, int y) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        this.image[x][y].curveB(curve);
+
+        return GeneralError.NO_ERROR;
+
+    }
+
+    public Error setPixel(int x, int y, Pixel pixel) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+        if(this.image[0][0] != null ? this.image[0][0].isGray() != pixel.isGray() : true)
+            return ImageError.COLOR_NOT_CONSISTENT;
+        if(this.image.length <= x || this.image[0].length <= y)
+            return ImageError.POSTION_NOT_WITHIN_IMAGE;
+
+        this.image[x][y] = pixel.copy();
+
+        return GeneralError.NO_ERROR;
+    }
+
+    public Pixel findBrightest() {
+        Pixel brightest = (Pixel)new RGBPixel(0.0, 0.0, 0.0);
+        for(int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[i].length; j++)
+                if(this.image[i][j].getLuminance() > brightest.getLuminance())
+                    brightest = this.image[i][j];
+        }
+
+        return brightest.copy();
+    }
+    public Pixel findDimmest() {
+        Pixel dimmest = (Pixel)new RGBPixel(1.0, 1.0, 1.0);
+        for(int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[i].length; j++)
+                if(this.image[i][j].getLuminance() < dimmest.getLuminance())
+                    dimmest = this.image[i][j];
+        }
+
+        return dimmest.copy();
+    }
 
     /**
      * getter for individual pixels
@@ -249,17 +349,17 @@ public class Image {
      * @param y vertical position of pixel
      * @return
      */
-    public Pixel getPixel(int x, int y)
-    {
+    public Pixel getPixel(int x, int y) {
+        if(this.image == null)
+            return null;
+
         return image[x][y];
     }
-
     /**
      * another getter, now for the image itself
      * @return the entire image
      */
-    public Pixel[][] getImage()
-    {
+    public Pixel[][] getImage() {
         return image;
     }
 
@@ -268,67 +368,111 @@ public class Image {
      * @param filename the name of the file the image is going to be saved to.
      * @return any errors that crop up.
      */
-    public Error fileImage(String filename)
-    {
-        File outFile = new File(filename + ".bmp");
-        try
-        {
-            if(!outFile.createNewFile())
-            {
-                System.out.println("File not created; Already exists.");
-            }
+    public Error saveImage(String filename) {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        try {
+            Class.forName("java.awt.image.BufferedImage");
+        } catch (ClassNotFoundException e) {
+           return this.saveImage_noAWT(filename);
         }
-        catch(Exception e)
-        {
-            return DataError.FILE_ALREADY_EXISTS_ERROR;
 
-        }
-        /**
-         * have to mess around with formats and types
-         */
-        BmpImage hackyImage = new BmpImage();
+        BufferedImage image = new BufferedImage(this.image.length, this.image[0] != null ? this.image[0].length : 0, BufferedImage.TYPE_INT_RGB);
 
-        BufferedRgb888Image writtenImage = new BufferedRgb888Image(image.length,image[0].length);
-        hackyImage.image = writtenImage;
-        for(int i = 0; i < image.length; i++)
-        {
-            for(int j = 0; j < image[0].length; j++)
-            {
-                int color = image[i][j].getRed();
-                color = (color << 8) + image[i][j].getGreen();
-                color = (color << 8) + image[i][j].getBlue();
-
-                writtenImage.setRgb888Pixel(i,j,color);
+        for(int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[i].length; j++) {
+                image.setRGB(i, j, Pixel.PixelToRGB888_converter(this.image[i][j]));
             }
         }
 
-
-        try
-        {
-            FileOutputStream myWriter = new FileOutputStream(outFile.getPath());
-            BmpWriter.write(myWriter,hackyImage);
+        try {
+            FileOutputStream write = new FileOutputStream(filename);
+            ImageIO.write(image, "png", write);
         }
-        catch(Exception e)
-        {
-            return DataError.FILE_WRITING_ERROR;
+        catch(IOException e) {
+            return GeneralError.FILE_IO_ERROR;
         }
 
+        return GeneralError.NO_ERROR;
+    }
+    /**
+     * Saves the image to a file if no AWT methods are present.
+     * @param filename the name of the file the image is going to be saved to.
+     * @return any errors that crop up.
+     */
+    private Error saveImage_noAWT(String filename) {
+        BmpImage bmp = new BmpImage();
+        bmp.image = new AbstractRgb888Image(this.getWidth(), this.getHeight()) {
+            @Override
+            public int getRgb888Pixel(int x, int y) {
+                    int r = (int) (Image.this.image[x][y].getRed() * 255);
+                    int g = (int) (Image.this.image[x][y].getGreen() * 255);
+                    int b = (int) (Image.this.image[x][y].getBlue() * 255);
+                    return b | g << 8 | r << 16;
+            }
+        };
+
+        try {
+            FileOutputStream out = new FileOutputStream(filename + ".bmp");
+            BmpWriter.write(out, bmp);
+
+            out.close();
+        }
+        catch (IOException io){
+            return GeneralError.FILE_IO_ERROR;
+        }
 
         return GeneralError.NO_ERROR;
     }
 
+    public Error toMono() {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        for(int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++) {
+                if(this.image[i][j].isGray())
+                    continue;
+                this.image[i][j] = ((RGBPixel) this.image[i][j]).toMonochrome();
+            }
+        }
+
+        return GeneralError.NO_ERROR;
+    }
+    public Error toRGB() {
+        if(this.image == null)
+            return ImageError.IMAGE_NOT_SET;
+
+        for(int i = 0; i < this.image.length; i++) {
+            for(int j = 0; j < this.image[0].length; j++) {
+                if(this.image[i][j].isGray())
+                    this.image[i][j] = ((MonochromePixel)this.image[i][j]).toRGB();
+            }
+        }
+
+        return  GeneralError.NO_ERROR;
+    }
+
+    public int getHeight() {
+        return this.image != null ? this.image[0] == null ? 0 : this.image[0].length : 0;
+    }
+    public int getWidth() {
+        return this.image != null ? this.image.length : 0;
+    }
 
     /**
      * private class that'll help with downsampling/scaling
      */
-    private class Coordinate
-    {
+    private static class Coordinate {
         double x, y;
         Coordinate(double x, double y)
         {
             this.x = x;
             this.y = y;
         }
-
     }
+
+    //column by row, so width, then height/x then y
+    private Pixel[][] image;
 }
